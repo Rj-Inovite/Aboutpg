@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAZARIO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #f7f9fc;
+            color: #1f2937;
+        }
+
+        #bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .animated-section {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .animated-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #6366f1;
+            border-radius: 20px;
+            border: 3px solid #e2e8f0;
+        }
+        
+        /* New custom scrollbar for horizontal scrolling */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background-color: rgba(99, 102, 241, 0.7);
+            border-radius: 4px;
+        }
+
+        .hero-button {
+            background: linear-gradient(45deg, #6366f1, #a855f7);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .hero-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem; /* rounded-3xl */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 2rem; /* p-8 */
+        }
+        
+        .product-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Text shadow for better readability on moving background */
+        .text-shadow-lg {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* New and updated styles for sections and elements */
+        /* Updated gradients for more vibrant colors */
+        .section-highlight-1 {
+            background: linear-gradient(135deg, #e0e9ff, #d2bcfc); /* Light blue to lavender */
+        }
+        .section-highlight-2 {
+            background: linear-gradient(135deg, #fffbeb, #ffedc7); /* Light yellow to light orange */
+        }
+        .section-highlight-3 {
+            background: linear-gradient(135deg, #e1f5fe, #ccfbf1); /* Light sky blue to light teal */
+        }
+        
+        .product-card {
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            margin: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, #6366f1, #a855f7);
+            border-radius: 1.75rem; /* Matches rounded-3xl with margin */
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        /* New animations for story, mission, and team cards */
+        .story-block, .mission-block, .team-card {
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .story-block:hover, .mission-block:hover, .team-card:hover {
+            transform: scale(1.03) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .client-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+        .client-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Three.js Background Animation -->
+    <div id="bg-animation"></div>
+
+    <!-- Header Section -->
+    <header class="text-white p-6 md:p-8 sticky top-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 shadow-md">
+        <nav class="container mx-auto flex justify-between items-center flex-wrap">
+            <a href="#" class="text-3xl font-bold text-white transition-colors duration-300">
+                NAZARIO
+            </a>
+            <div class="space-x-4 md:space-x-8 mt-4 md:mt-0">
+                <a href="#home" class="hover:text-indigo-400 transition-colors duration-300 font-medium">Home</a>
+                <a href="#collection" class="hover:text-indigo-400 transition-colors duration-300 font-medium">Collection</a>
+                <a href="#about-nazario" class="hover:text-indigo-400 transition-colors duration-300 font-medium">About</a>
+                <!-- Updated Navigation: Added "Clients" link -->
+                <a href="#clients" class="hover:text-indigo-400 transition-colors duration-300 font-medium">Clients</a>
+                <a href="#contact" class="hover:text-indigo-400 transition-colors duration-300 font-medium">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative text-center py-24 md:py-48 overflow-hidden">
+        <div class="container mx-auto px-4 relative z-10">
+            <!-- The main heading now uses a bold cyan color -->
+            <h1 class="text-4xl md:text-6xl font-extrabold text-cyan-400 leading-tight mb-4 animated-section text-shadow-lg">
+                See the World in a New Light
+            </h1>
+            <!-- The paragraph now matches the heading's color -->
+            <p class="text-lg md:text-xl text-cyan-400 max-w-2xl mx-auto mb-8 animated-section text-shadow-md">
+                Discover our curated collection of stylish and innovative eyewear designed for a clearer you.
+            </p>
+            <a href="#collection" class="text-white py-3 px-8 rounded-full font-bold hero-button animated-section">
+                Explore Collection
+            </a>
+        </div>
+    </section>
+
+    <!-- Product Display Section -->
+    <section id="collection" class="py-16 md:py-24 animated-section">
+        <div class="container mx-auto px-4 text-center content-box section-highlight-1">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Our Bestsellers</h2>
+            <!-- Updated to a horizontal scrolling flex container -->
+            <div class="flex flex-nowrap overflow-x-auto gap-8 pb-4 scroll-smooth">
+                <!-- Product Card 1 -->
+                <div class="product-card flex-shrink-0 w-80 p-6 rounded-3xl shadow-lg flex flex-col items-center text-center">
+                    <img src="https://m.media-amazon.com/images/I/61seQiIeV6L._UY350_.jpg" alt="Aviator Sunglasses" class="w-full h-auto rounded-xl mb-4">
+                    <h3 class="text-xl font-semibold text-gray-900">The Voyager</h3>
+                    <p class="text-purple-600 font-medium mb-4">$129.99</p>
+                    <button class="bg-purple-600 text-white py-2 px-6 rounded-full font-bold hover:bg-purple-700 transition-colors duration-300">
+                        Shop Now
+                    </button>
+                </div>
+                <!-- Product Card 2 -->
+                <div class="product-card flex-shrink-0 w-80 p-6 rounded-3xl shadow-lg flex flex-col items-center text-center">
+                    <img src="https://res.glassesshop.com/categories/63154c663fe9c.jpg" alt="Classic Rectangular Frames" class="w-full h-auto rounded-xl mb-4">
+                    <h3 class="text-xl font-semibold text-gray-900">The Architect</h3>
+                    <p class="text-purple-600 font-medium mb-4">$99.99</p>
+                    <button class="bg-purple-600 text-white py-2 px-6 rounded-full font-bold hover:bg-purple-700 transition-colors duration-300">
+                        Shop Now
+                    </button>
+                </div>
+                <!-- Product Card 3 -->
+                <div class="product-card flex-shrink-0 w-80 p-6 rounded-3xl shadow-lg flex flex-col items-center text-center">
+                    <img src="https://mcdn.magrabi.com/image/upload/c_limit,w_3840/f_auto/q_95/v1/p/prod/i/183409001/model_image/en_US/magrabi_ecommerce/183409001_4.jpg?_a=BAVAUaDW0" alt="Round Vintage Glasses" class="w-full h-auto rounded-xl mb-4">
+                    <h3 class="text-xl font-semibold text-gray-900">The Visionary</h3>
+                    <p class="text-purple-600 font-medium mb-4">$119.99</p>
+                    <button class="bg-purple-600 text-white py-2 px-6 rounded-full font-bold hover:bg-purple-700 transition-colors duration-300">
+                        Shop Now
+                    </button>
+                </div>
+                <!-- Product Card 4 -->
+                <div class="product-card flex-shrink-0 w-80 p-6 rounded-3xl shadow-lg flex flex-col items-center text-center">
+                    <img src="https://ae04.alicdn.com/kf/Hdfba300cb1814cefa973ef4f85bb2c49i.jpg" alt="Cat-Eye Frames" class="w-full h-auto rounded-xl mb-4">
+                    <h3 class="text-xl font-semibold text-gray-900">The Enigma</h3>
+                    <p class="text-purple-600 font-medium mb-4">$109.99</p>
+                    <button class="bg-purple-600 text-white py-2 px-6 rounded-full font-bold hover:bg-purple-700 transition-colors duration-300">
+                        Shop Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Luminous Story Section -->
+    <section id="story" class="py-16 md:py-24 animated-section section-highlight-2">
+        <div class="container mx-auto px-4 text-center content-box">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-16">The Luminous Story</h2>
+            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto relative">
+                <!-- Vertical Line for Visual Timeline -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gray-300 hidden md:block"></div>
+
+                <!-- Story Block 1 -->
+                <div class="story-block p-8 rounded-2xl shadow-lg border-t-4 border-indigo-500 relative">
+                    <div class="bg-indigo-500 w-4 h-4 rounded-full absolute -top-2 left-1/2 transform -translate-x-1/2 md:hidden"></div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">2022: Our Genesis</h3>
+                    <p class="text-gray-600">We launched our first online-only eyewear site with stylish, quality glasses at affordable prices, making vision accessible to all.</p>
+                </div>
+                <!-- Story Block 2 -->
+                <div class="story-block p-8 rounded-2xl shadow-lg border-t-4 border-emerald-500 relative mt-16 md:mt-0">
+                    <div class="bg-emerald-500 w-4 h-4 rounded-full absolute -top-2 left-1/2 transform -translate-x-1/2 md:hidden"></div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">2023: Innovation Sparked</h3>
+                    <p class="text-gray-600">We dropped our prices to make eyewear that fits every budget, proving that high-quality doesn't have to mean high-cost.</p>
+                </div>
+                <!-- Story Block 3 -->
+                <div class="story-block p-8 rounded-2xl shadow-lg border-t-4 border-amber-500 relative mt-16 md:mt-0">
+                    <div class="bg-amber-500 w-4 h-4 rounded-full absolute -top-2 left-1/2 transform -translate-x-1/2 md:hidden"></div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">2024: The Virtual Revolution</h3>
+                    <p class="text-gray-600">We introduced our groundbreaking Virtual Try-On. Just snap a selfie to find your perfect pair without ever leaving home.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- About Nazario Section -->
+    <section id="about-nazario" class="py-16 md:py-24 animated-section bg-gradient-to-r from-indigo-500/90 to-purple-600/90 text-white">
+        <div class="container mx-auto px-4 text-center max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">About Nazario</h2>
+            <p class="text-lg md:text-xl mb-8">
+                Nazario is not just a brand; it's a philosophy born from a vision of clarity and style. Our founder, Nazario, started this company with a simple yet powerful idea: that everyone deserves to see the world clearly, and look amazing while doing it. We believe in crafting eyewear that is a true extension of your personality, combining cutting-edge technology with timeless design. Each pair of glasses is a testament to our commitment to excellence, transparency, and a future where fashion and function are inseparable.
+            </p>
+        </div>
+    </section>
+
+    <!-- Face Scan / Virtual Try-On Section -->
+    <section id="face-scan" class="py-16 md:py-24 animated-section section-highlight-3">
+        <div class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12 max-w-6xl content-box">
+            <div class="md:w-1/2 text-center md:text-left">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Discover Your Perfect Fit</h2>
+                <p class="text-gray-600 text-lg mb-6">
+                    Our AI-powered Virtual Try-On tool redefines online shopping. Upload a photo, and our technology instantly shows you how our frames look on your unique face. It's effortless, accurate, and completely online.
+                </p>
+                <button class="bg-purple-600 text-white py-3 px-8 rounded-full font-bold hover:bg-purple-700 transition-colors duration-300">
+                    Try Our Quiz
+                </button>
+            </div>
+            <div class="md:w-1/2">
+                <img src="https://mirrar.in/wp-content/uploads/2024/06/Try-On.jpg" alt="Virtual Try-On" class="rounded-3xl shadow-2xl w-full">
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision Section -->
+    <section id="mission" class="py-16 md:py-24 animated-section">
+        <div class="container mx-auto px-4 text-center max-w-5xl content-box section-highlight-3">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Our Vision & Mission</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Vision Block -->
+                <div class="flex-1 mission-block bg-white p-8 rounded-2xl shadow-lg border-t-4 border-teal-500">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Our Vision</h3>
+                    <p class="text-gray-600">
+                        To revolutionize the eyewear industry by making high-quality, stylish, and sustainable glasses available to all. We envision a world where self-expression and visual clarity go hand in hand.
+                    </p>
+                </div>
+                <!-- Mission Block -->
+                <div class="flex-1 mission-block bg-white p-8 rounded-2xl shadow-lg border-t-4 border-sky-500">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">Our Mission</h3>
+                    <p class="text-gray-600">
+                        Our mission is to deliver exceptional eyewear that merges fashion with function, while fostering a customer-first experience built on trust, innovation, and transparency.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Meet the Team Section -->
+    <section id="team" class="py-16 md:py-24 animated-section">
+        <div class="container mx-auto px-4 text-center max-w-7xl content-box section-highlight-1">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Meet Our Team</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="team-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://static.vecteezy.com/system/resources/previews/026/287/627/non_2x/young-smart-businessman-standing-in-blur-background-of-office-generative-ai-photo.jpg" alt="Riddhish Joshi" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900">Riddhish Joshi</h3>
+                    <p class="text-purple-600 font-medium mb-2">Founder & CEO</p>
+                    <blockquote class="text-gray-600 text-sm">
+                        "Creating Luminous Eyewear has been a passion project. Our goal is to make great vision and style accessible to everyone."
+                    </blockquote>
+                </div>
+                <!-- Team Member 2 -->
+                <div class="team-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://i.pinimg.com/736x/5a/2d/2b/5a2d2b63181e01e6768cfb9239a5144f.jpg" alt="Raj Patil" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900">Raj Patil</h3>
+                    <p class="text-purple-600 font-medium mb-2">Lead Designer</p>
+                    <blockquote class="text-gray-600 text-sm">
+                        "I believe eyewear should be more than just a tool,it's a form of self-expression. We design frames that reflect individual identity."
+                    </blockquote>
+                </div>
+                <!-- Team Member 3 -->
+                <div class="team-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://img.freepik.com/premium-photo/beautiful-business-woman-standing-front-her-office-desk_173749-39432.jpg?w=360" alt="Ruchi Jasmatiya" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900">Ruchi Jasmatiya</h3>
+                    <p class="text-purple-600 font-medium mb-2">Head of Operations</p>
+                    <blockquote class="text-gray-600 text-sm">
+                        "Efficiency and precision are at our core. We work tirelessly to ensure a seamless and delightful customer experience from start to finish."
+                    </blockquote>
+                </div>
+                <!-- Team Member 4 -->
+                <div class="team-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://static.vecteezy.com/system/resources/thumbnails/029/771/887/small/portrait-of-a-handsome-businessman-in-modern-office-asian-manager-looking-at-camera-and-smiling-confident-male-ceo-planning-and-managing-company-strategy-free-photo.jpeg" alt="Dev Sharma" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover">
+                    <h3 class="text-xl font-semibold text-gray-900">Dev Sharma </h3>
+                    <p class="text-purple-600 font-medium mb-2">Marketing Lead</p>
+                    <blockquote class="text-gray-600 text-sm">
+                        "Building a brand is about building trust. My mission is to share our story in a way that truly connects with our customers."
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Our Valued Clients -->
+    <section id="clients" class="py-16 md:py-24 animated-section">
+        <div class="container mx-auto px-4 text-center max-w-7xl content-box section-highlight-2">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Our Valued Clients</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Client Card 1 -->
+                <div class="client-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://media.designrush.com/inspirations/765750/conversions/1-preview.jpg" alt="Client Logo A" class="w-full h-auto rounded-lg mb-4 opacity-75 hover:opacity-100 transition-opacity">
+                    <p class="text-lg font-semibold text-gray-900">WALMART </p>
+                </div>
+                <!-- Client Card 2 -->
+                <div class="client-card bg-white p-6 rounded-3xl text-center">
+                    <img src="https://cimg.cnyes.cool/prod/news/4939250/l/4f5963751d6540907922c9e0167f0204.jpg" alt="Client Logo B" class="w-full h-auto rounded-lg mb-4 opacity-75 hover:opacity-100 transition-opacity">
+                    <p class="text-lg font-semibold text-gray-900">SIGNIFIHEALTH.</p>
+                </div>
+                <!-- Client Card 3 -->
+                <div class="client-card bg-white p-6 rounded-3xl text-center">
+                    <img src="data:image/png;base64,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" alt="Client Logo C" class="w-full h-auto rounded-lg mb-4 opacity-75 hover:opacity-100 transition-opacity">
+                    <p class="text-lg font-semibold text-gray-900">HSBC</p>
+                </div>
+                <!-- Client Card 4 -->
+                <div class="client-card bg-white p-6 rounded-3xl text-center">
+                    <img src="data:image/png;base64,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" alt="Client Logo D" class="w-full h-auto rounded-lg mb-4 opacity-75 hover:opacity-100 transition-opacity">
+                    <p class="text-lg font-semibold text-gray-900">ALITALIA </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-200 text-gray-600 py-12 md:py-16 animated-section">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="col-span-full md:col-span-1">
+                <h3 class="text-gray-900 text-2xl font-bold mb-4">NAZARIO</h3>
+                <p>Redefining vision with tech, style, and care. See better, look better.</p>
+            </div>
+            <div>
+                <h4 class="text-gray-900 font-semibold mb-4">Quick Links</h4>
+                <ul>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">About Us</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Services</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-gray-900 font-semibold mb-4">Eyewear Collection</h4>
+                <ul>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Sunglasses</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Prescription Eyewear</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Reading Glasses</a></li>
+                    <li><a href="#" class="hover:text-gray-900 transition-colors duration-300">Kids & Teens</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-gray-900 font-semibold mb-4">Get In Touch</h4>
+                <p>
+                    Our address:<br>
+                    123 Vision Way, Suite 456<br>
+                    Clarity City, VC 78901
+                </p>
+                <p class="mt-4">
+                    Email: <a href="mailto:support@luminous.com" class="hover:text-gray-900 transition-colors duration-300">support@luminous.com</a>
+                </p>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-gray-500 text-sm">
+            &copy; 2025 NAZARIO. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // THREE.js BACKGROUND ANIMATION
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('bg-animation').appendChild(renderer.domElement);
+
+            camera.position.z = 5;
+
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            // Create a more abstract glasses-like shape
+            const glassesGroup = new THREE.Group();
+
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: 0x666666, // A metallic dark grey
+                metalness: 0.8,
+                roughness: 0.2
+            });
+
+            // Lenses (clear glass effect)
+            const lensMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x87ceeb, // A light blue
+                transparent: true,
+                opacity: 0.4,
+                roughness: 0.1,
+                clearcoat: 1,
+                clearcoatRoughness: 0.1
+            });
+
+            // Left Lens Frame
+            const leftLensFrame = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.1, 16, 100), frameMaterial);
+            leftLensFrame.position.set(-1.5, 0, 0);
+            glassesGroup.add(leftLensFrame);
+            const leftLens = new THREE.Mesh(new THREE.TorusGeometry(1, 0.05, 16, 100), lensMaterial);
+            leftLens.position.set(-1.5, 0, 0);
+            glassesGroup.add(leftLens);
+
+            // Right Lens Frame
+            const rightLensFrame = new THREE.Mesh(new THREE.TorusGeometry(1.2, 0.1, 16, 100), frameMaterial);
+            rightLensFrame.position.set(1.5, 0, 0);
+            glassesGroup.add(rightLensFrame);
+            const rightLens = new THREE.Mesh(new THREE.TorusGeometry(1, 0.05, 16, 100), lensMaterial);
+            rightLens.position.set(1.5, 0, 0);
+            glassesGroup.add(rightLens);
+
+            // Bridge
+            const bridgeGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 32);
+            const bridge = new THREE.Mesh(bridgeGeometry, frameMaterial);
+            bridge.rotation.z = Math.PI / 2;
+            glassesGroup.add(bridge);
+
+            // Temples (arms)
+            const templeGeometry = new THREE.BoxGeometry(0.1, 3, 0.1);
+            const leftTemple = new THREE.Mesh(templeGeometry, frameMaterial);
+            leftTemple.position.set(-2.5, -1.5, 0);
+            leftTemple.rotation.x = -Math.PI / 2;
+            glassesGroup.add(leftTemple);
+
+            const rightTemple = new THREE.Mesh(templeGeometry, frameMaterial);
+            rightTemple.position.set(2.5, -1.5, 0);
+            rightTemple.rotation.x = -Math.PI / 2;
+            glassesGroup.add(rightTemple);
+
+            scene.add(glassesGroup);
+
+            // Animation Loop
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                // Gentle floating motion
+                glassesGroup.rotation.y += 0.002;
+                glassesGroup.rotation.x = Math.sin(Date.now() * 0.0005) * 0.1;
+                glassesGroup.position.y = Math.sin(Date.now() * 0.001) * 0.5;
+
+                renderer.render(scene, camera);
+            };
+
+            // Handle window resizing
+            window.addEventListener('resize', () => {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            });
+
+            // Intersection Observer for section animations
+            const sections = document.querySelectorAll('.animated-section');
+            const observerOptions = {
+                root: null,
+                threshold: 0.2,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            animate();
+        });
+    </script>
+</body>
+</html>
